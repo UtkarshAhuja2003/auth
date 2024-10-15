@@ -1,0 +1,21 @@
+tasks:
+  - name: Install Docker
+    init: |
+      sudo apt-get update
+      sudo apt-get install -y docker.io docker-compose
+    command: |
+      cp ./users/.env.sample ./users/.env
+      cp ./client/.env.sample ./client/.env
+      docker-compose up --build -d
+
+ports:
+  - port: 8000
+    onOpen: ignore  # user-service
+  - port: 3000
+    onOpen: ignore  # client-service
+  - port: 80
+    onOpen: open-preview  # NGINX proxy
+
+vscode:
+  extensions:
+    - ms-azuretools.vscode-docker
