@@ -8,7 +8,9 @@ const registerUser = async (_, args, context) => {
     const { name, email, password } = args.input;
 
     try {
-        validateUserInput(args.input, "register");
+        const userValidation = await validateUserInput(args.input, "register");
+        if (!userValidation.success) return userValidation;
+
         const existingUser = await User.findOne({ email });
         if (existingUser) {
             return new GraphQLResponse(null, false, "User already exists", ["User with this email already exists"], new Error().stack);
@@ -41,7 +43,9 @@ const loginUser = async (_, args, context) => {
     const { email, password } = args.input;
 
     try {
-        validateUserInput(args.input, "login");
+        const userValidation = await validateUserInput(args.input, "login");
+        console.log(userValidation);
+        if (!userValidation.success) return userValidation;
 
         const user = await User.findOne({ email });
         if (!user) {
@@ -67,7 +71,7 @@ const loginUser = async (_, args, context) => {
         };
         context.res.cookie("accessToken", accessToken, { ...cookieOptions, maxAge: 1000 * 60 * 15 });
         context.res.cookie("refreshToken", refreshToken, { ...cookieOptions, maxAge: 1000 * 60 * 60 * 24 * 7 });
-
+        console.log(accessToken);
         return new GraphQLResponse(loggedInUser, true, "User logged in successfully");
 
     } catch (error) {

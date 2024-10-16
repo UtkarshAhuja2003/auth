@@ -36,6 +36,10 @@ const typeDefs = `
         incomingRefreshToken: String!
     }
     
+    input ProfileInput {
+        name: String
+    }
+    
     type Query {
         getCurrentUser: UserResponse!
     }
@@ -45,6 +49,7 @@ const typeDefs = `
         loginUser(input: LoginInput!): UserResponse!
         logoutUser: MessageResponse!
         refreshAccessToken(input: RefreshTokenInput!): MessageResponse!
+        updateProfile(input: ProfileInput!): UserResponse!
     }
 `;
 
