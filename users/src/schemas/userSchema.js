@@ -40,6 +40,11 @@ const typeDefs = `
         name: String
     }
     
+    input PasswordInput {
+        currentPassword: String!
+        newPassword: String!
+    }
+    
     type Query {
         getCurrentUser: UserResponse!
     }
@@ -50,6 +55,7 @@ const typeDefs = `
         logoutUser: MessageResponse!
         refreshAccessToken(input: RefreshTokenInput!): MessageResponse!
         updateProfile(input: ProfileInput!): UserResponse!
+        updatePassword(input: PasswordInput!): MessageResponse!
     }
 `;
 

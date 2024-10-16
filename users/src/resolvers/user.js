@@ -44,7 +44,6 @@ const loginUser = async (_, args, context) => {
 
     try {
         const userValidation = await validateUserInput(args.input, "login");
-        console.log(userValidation);
         if (!userValidation.success) return userValidation;
 
         const user = await User.findOne({ email });
@@ -71,9 +70,8 @@ const loginUser = async (_, args, context) => {
         };
         context.res.cookie("accessToken", accessToken, { ...cookieOptions, maxAge: 1000 * 60 * 15 });
         context.res.cookie("refreshToken", refreshToken, { ...cookieOptions, maxAge: 1000 * 60 * 60 * 24 * 7 });
-        console.log(accessToken);
+        
         return new GraphQLResponse(loggedInUser, true, "User logged in successfully");
-
     } catch (error) {
         return new GraphQLResponse(null, false, error.message, [error.message], error.stack);
     }
