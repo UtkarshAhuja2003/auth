@@ -1,10 +1,6 @@
 const { ApolloServer } = require("@apollo/server");
+const typeDefs = require("./schemas/userSchema");
 
-const typeDefs = `
-  type Query {
-    hello: String
-  }
-`;
 const resolvers = {
   Query: {
     hello: () => "Hello, world!"
