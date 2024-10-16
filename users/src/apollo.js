@@ -1,16 +1,21 @@
 const { ApolloServer } = require("@apollo/server");
 const typeDefs = require("./schemas/userSchema");
-
-const resolvers = {
-  Query: {
-    hello: () => "Hello, world!"
-  }
-};
+const { registerUser, loginUser, getCurrentUser, logoutUser, refreshAccessToken } = require("./resolvers/user");
 
 const createApolloServer = async () => {
   const server = new ApolloServer({
     typeDefs,
-    resolvers,
+    resolvers: {
+      Query: {
+        getCurrentUser,
+      },
+      Mutation: {
+        registerUser,
+        loginUser,
+        logoutUser,
+        refreshAccessToken
+      },
+    },
   });
   
   await server.start();
