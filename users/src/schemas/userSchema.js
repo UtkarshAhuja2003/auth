@@ -58,6 +58,8 @@ const typeDefs = `
         updatePassword(input: PasswordInput!): MessageResponse!
         verifyEmail(emailVerificationToken: String!): MessageResponse!
         resendVerificationEmail: MessageResponse!
+        forgotPasswordRequest(email: String!): MessageResponse!
+        resetForgottenPassword(forgotPasswordToken: String!, newPassword: String!): MessageResponse!
     }
 `;
 

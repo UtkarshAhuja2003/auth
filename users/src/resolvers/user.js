@@ -2,8 +2,8 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/user");
 const verifyJWT = require("../middlewares/auth");
 const { GraphQLResponse } = require("../utils/GraphQLResponse");
-const { validateUserInput } = require("../validators/userValidator");
-const { sendEmail, emailVerificationMailgenContent } = require("../utils/mail");
+const { validateUserInput, validateEmail, validatePassword } = require("../validators/userValidator");
+const { sendEmail, emailVerificationMailgenContent, forgotPasswordMailgenContent } = require("../utils/mail");
 
 const registerUser = async (_, args, context) => {
     const { name, email, password } = args.input;
@@ -84,7 +84,7 @@ const loginUser = async (_, args, context) => {
         };
         context.res.cookie("accessToken", accessToken, { ...cookieOptions, maxAge: 1000 * 60 * 15 });
         context.res.cookie("refreshToken", refreshToken, { ...cookieOptions, maxAge: 1000 * 60 * 60 * 24 * 7 });
-        console.log(accessToken);
+        
         return new GraphQLResponse(loggedInUser, true, "User logged in successfully");
     } catch (error) {
         return new GraphQLResponse(null, false, error.message, [error.message], error.stack);
@@ -188,6 +188,63 @@ const logoutUser = async (_, args, context) => {
     }
 };
 
+const forgotPasswordRequest = async (_, args, context) => {
+    const { email } = args;
+    try {
+        const emailValidation = await validateEmail(email);
+        if(!emailValidation.success) return emailValidation;
+
+        const user = await User.findOne({ email });
+        if (!user) {
+            return new GraphQLResponse(null, false, "User not found", ["User with this email not found"], new Error().stack);
+        }
+
+        const forgotPasswordToken = user.generateForgotPasswordToken();
+        user.forgotPasswordToken = forgotPasswordToken;
+        await user.save();
+
+        await sendEmail({
+            email: user.email,
+            subject: "Password reset request",
+            mailgenContent: forgotPasswordMailgenContent(
+                user.name,
+                `${context.req.protocol}://${context.req.get(
+                    "host"
+                )}/user/forgot-password/${forgotPasswordToken}`
+            )
+        });
+
+        return new GraphQLResponse(null, true, "Reset Password mail sent successfully");
+    } catch(error) {
+        return new GraphQLResponse(null, false, error.message, error, error.stack);
+    }
+};
+
+const resetForgottenPassword = async (_, args) => {
+    const { forgotPasswordToken, newPassword } = args;
+    try {
+        const passwordValidation = await validatePassword(newPassword);
+        if(!passwordValidation.success) return passwordValidation;
+
+        const decodedToken = jwt.verify(forgotPasswordToken, process.env.FORGOT_PASSWORD_TOKEN_SECRET);
+        const user = await User.findById(decodedToken._id);
+        if (!user) {
+            return new GraphQLResponse(null, false, "Token is invalid or expired", ["User with this token not found"], new Error().stack);
+        }
+
+        user.forgotPasswordToken = undefined;
+        user.password = newPassword;
+        const updatedUser = await user.save();
+        if (!updatedUser) {
+            return new GraphQLResponse(null, false, "Password update failed", ["Password not updated"], new Error().stack);
+        }
+        
+        return new GraphQLResponse(null, true, "Password updated successfully");
+    } catch (error) {
+        return new GraphQLResponse(null, false, error.message, error, error.stack);
+    }
+}
+
 const generateAccessAndRefreshToken = async (userId) => {
   try {
       const user = await User.findById(userId);
@@ -253,5 +310,7 @@ module.exports = {
     verifyEmail,
     logoutUser,
     getCurrentUser,
-    resendVerificationEmail
+    resendVerificationEmail,
+    forgotPasswordRequest,
+    resetForgottenPassword
 };

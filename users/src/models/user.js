@@ -42,6 +42,9 @@ const userSchema = new Schema({
     },
     verificationToken: {
         type: String
+    },
+    forgotPasswordToken: {
+      type: String
     }
 },{
     timestamps: true
@@ -83,6 +86,16 @@ userSchema.methods.generateVerificationToken = function () {
       { expiresIn: process.env.VERIFICATION_TOKEN_EXPIRY }
     );
 };
+
+userSchema.methods.generateForgotPasswordToken = function() {
+    return jwt.sign(
+      {
+        _id: this._id,
+      },
+      process.env.FORGOT_PASSWORD_TOKEN_SECRET,
+      { expiresIn: process.env.FORGOT_PASSWORD_TOKEN_EXPIRY }
+    );
+}
 
 const User = mongoose.model('User', userSchema);
 module.exports = User;
