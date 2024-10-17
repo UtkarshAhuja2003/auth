@@ -56,6 +56,7 @@ const typeDefs = `
         refreshAccessToken(input: RefreshTokenInput!): MessageResponse!
         updateProfile(input: ProfileInput!): UserResponse!
         updatePassword(input: PasswordInput!): MessageResponse!
+        verifyEmail(emailVerificationToken: String!): MessageResponse!
     }
 `;
 

@@ -3,6 +3,7 @@ const User = require("../models/user");
 const verifyJWT = require("../middlewares/auth");
 const { GraphQLResponse } = require("../utils/GraphQLResponse");
 const { validateUserInput } = require("../validators/userValidator");
+const { sendEmail, emailVerificationMailgenContent } = require("../utils/mail");
 
 const registerUser = async (_, args, context) => {
     const { name, email, password } = args.input;
@@ -17,6 +18,8 @@ const registerUser = async (_, args, context) => {
         }
 
         const user = await User.create({ email, password, name });
+        const emailVerificationToken = user.generateVerificationToken();
+        user.verificationToken = emailVerificationToken;
         await user.save();
 
         const { accessToken, refreshToken } = await generateAccessAndRefreshToken(user._id);
@@ -32,6 +35,17 @@ const registerUser = async (_, args, context) => {
         };
         context.res.cookie("accessToken", accessToken, { ...cookieOptions, maxAge: 1000 * 60 * 15 });
         context.res.cookie("refreshToken", refreshToken, { ...cookieOptions, maxAge: 1000 * 60 * 60 * 24 * 7 });
+
+        await sendEmail({
+            email: user.email,
+            subject: "Email Verification",
+            mailgenContent: emailVerificationMailgenContent(
+                user.name,
+                `${context.req.protocol}://${context.req.get(
+                    "host"
+                )}/user/verify-email/${emailVerificationToken}`
+            )
+        });
 
         return new GraphQLResponse(createdUser, true, "User registered successfully");
     } catch (error) {
@@ -70,8 +84,33 @@ const loginUser = async (_, args, context) => {
         };
         context.res.cookie("accessToken", accessToken, { ...cookieOptions, maxAge: 1000 * 60 * 15 });
         context.res.cookie("refreshToken", refreshToken, { ...cookieOptions, maxAge: 1000 * 60 * 60 * 24 * 7 });
-        
+        console.log(accessToken);
         return new GraphQLResponse(loggedInUser, true, "User logged in successfully");
+    } catch (error) {
+        return new GraphQLResponse(null, false, error.message, [error.message], error.stack);
+    }
+};
+
+const verifyEmail = async (_, args, context) => {
+    const { emailVerificationToken } = args;
+    try {
+        const jwtResponse = await verifyJWT(context);
+        if(!jwtResponse.success) return jwtResponse;
+
+        const user = jwtResponse.data;
+        if (!user) {
+            return new GraphQLResponse(null, false, "User not found", ["User not authenticated"], new Error().stack);
+        }
+
+        if (emailVerificationToken !== user.verificationToken) {
+            return new GraphQLResponse(null, false, "Email verification token is expired or used", ["Invalid or expired email verification token"], new Error().stack);
+        }
+
+        user.emailVerified = true;
+        user.verificationToken = "";
+        await user.save();
+
+        return new GraphQLResponse(null, true, "Email verified successfully");
     } catch (error) {
         return new GraphQLResponse(null, false, error.message, [error.message], error.stack);
     }
@@ -176,6 +215,7 @@ module.exports = {
     refreshAccessToken,
     registerUser,
     loginUser,
+    verifyEmail,
     logoutUser,
     getCurrentUser
 };
