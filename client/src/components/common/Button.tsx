@@ -1,5 +1,5 @@
 import React from 'react';
-import { ButtonProps } from '@/interfaces/user';
+import { ButtonProps } from '@/interfaces/common';
 
 const Button: React.FC<ButtonProps> = ({ label, isLoading }) => {
   return (

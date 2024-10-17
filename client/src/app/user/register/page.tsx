@@ -6,6 +6,7 @@ import Banner from '@/components/common/Banner';
 import { validateEmail, validateName, validatePassword } from '@/utils/userValidation';
 import { useForm } from '@/hooks/useForm';
 import { useBanner } from '@/hooks/useBanner';
+import { registerUser } from '@/api/user';
 
 const Register = () => {
   const { formState, handleChange, resetForm } = useForm({ name: '', email: '', password: '' });
@@ -38,10 +39,23 @@ const Register = () => {
       return;
     }
 
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    const response = await registerUser({ email, password, name });
+    if (!response.success) {
+      showBanner('error', response.message || 'An error occurred');
+      setIsLoading(false);
+      return;
+    }
     showBanner('success', 'Registration successful! Please check your email to verify your account');
     setIsLoading(false);
     resetForm();
+    
+    setTimeout(() => {
+      redirectToProfile();
+    }, 1000);
+  };
+
+  const redirectToProfile = () => {
+    window.location.href = '/user/profile';
   };
 
   return (

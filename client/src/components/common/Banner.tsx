@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { BannerProps } from '@/interfaces/user';
+import { BannerProps } from '@/interfaces/common';
 
 const Banner: React.FC<BannerProps> = ({ message, onClose, type }) => {
   const bgColor = type === 'success' ? 'bg-green-100' : 'bg-red-100';

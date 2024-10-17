@@ -1,6 +1,7 @@
+import { User } from '@/interfaces/user';
 import { useState } from 'react';
 
-export const useForm = (initialState: { [key: string]: string }) => {
+export const useForm = (initialState: User) => {
   const [formState, setFormState] = useState(initialState);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

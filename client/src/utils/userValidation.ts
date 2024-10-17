@@ -1,4 +1,4 @@
-export const validateName = async (name: string) => {
+export const validateName = async (name: string | undefined) => {
     if (!name) {
       return { isValid: false, message: 'Name is required' };
     }
@@ -8,7 +8,7 @@ export const validateName = async (name: string) => {
     return { isValid: true };
 };
   
-export const validateEmail = async (email: string) => {
+export const validateEmail = async (email: string | undefined) => {
     const re = /\S+@\S+\.\S+/;
     if (!email) {
       return { isValid: false, message: 'Email is required' };
@@ -19,7 +19,7 @@ export const validateEmail = async (email: string) => {
     return { isValid: true };
 };
   
-export const validatePassword = async (password: string) => {
+export const validatePassword = async (password: string | undefined) => {
     if (!password) {
       return { isValid: false, message: 'Password is required' };
     }

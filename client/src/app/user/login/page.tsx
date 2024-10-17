@@ -6,6 +6,7 @@ import Banner from '@/components/common/Banner';
 import { validateEmail, validatePassword } from '@/utils/userValidation';
 import { useForm } from '@/hooks/useForm';
 import { useBanner } from '@/hooks/useBanner';
+import { loginUser } from '@/api/user';
 
 const Login = () => {
   const { formState, handleChange, resetForm } = useForm({ email: '', password: '' });
@@ -32,10 +33,23 @@ const Login = () => {
       return;
     }
 
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    const response = await loginUser({ email, password });
+    if (!response.success) {
+      showBanner('error', response.message || 'An error occurred');
+      setIsLoading(false);
+      return;
+    }
     showBanner('success', 'Logged in successfully');
     setIsLoading(false);
     resetForm();
+
+    setTimeout(() => {
+      redirectToProfile();
+    }, 1000);
+  };
+
+  const redirectToProfile = () => {
+    window.location.href = '/user/profile';
   };
 
   return (

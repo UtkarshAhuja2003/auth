@@ -1,5 +1,5 @@
 import React from 'react';
-import { InputFieldProps } from '@/interfaces/user';
+import { InputFieldProps } from '@/interfaces/common';
 
 const InputField: React.FC<InputFieldProps> = ({ name, placeholder, type, value, onChange }) => {
   return (
