@@ -1,7 +1,7 @@
 class GraphQLResponse {
     /**
      * @param {any} data - The data to be returned in the response.
-     * @param {string} message - A success message.
+     * @param {string} message - A message.
      * @param {string[]} errors - An array of errors.
      * @param {string} stack - The error stack
      * @param {boolean} success - A boolean indicating if the operation was successful.

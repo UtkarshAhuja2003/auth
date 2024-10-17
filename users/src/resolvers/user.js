@@ -116,6 +116,41 @@ const verifyEmail = async (_, args, context) => {
     }
 };
 
+const resendVerificationEmail = async(_, __, context) => {
+    try {
+        const jwtResponse = await verifyJWT(context);
+        if(!jwtResponse.success) return jwtResponse;
+
+        const user = jwtResponse.data;
+        if (!user) {
+            return new GraphQLResponse(null, false, "User not found", ["User not authenticated"], new Error().stack);
+        }
+
+        if(user.emailVerified) {
+            return new GraphQLResponse(null, false, "Email is already verified", ["Provided account is already verified"], new Error().stack);
+        }
+
+        const emailVerificationToken = user.generateVerificationToken();
+        user.verificationToken = emailVerificationToken;
+        await user.save();
+
+        await sendEmail({
+            email: user.email,
+            subject: "Email Verification",
+            mailgenContent: emailVerificationMailgenContent(
+                user.name,
+                `${context.req.protocol}://${context.req.get(
+                    "host"
+                )}/user/verify-email/${emailVerificationToken}`
+            )
+        });
+
+        return new GraphQLResponse(null, true, "Verification mail sent");
+    } catch(error) {
+        return new GraphQLResponse(null, false, error.message, error, error.stack);
+    }
+};
+
 const getCurrentUser = async (_, __, context) => {
     try {
         const jwtResponse = await verifyJWT(context);
@@ -217,5 +252,6 @@ module.exports = {
     loginUser,
     verifyEmail,
     logoutUser,
-    getCurrentUser
+    getCurrentUser,
+    resendVerificationEmail
 };

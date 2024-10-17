@@ -57,6 +57,7 @@ const typeDefs = `
         updateProfile(input: ProfileInput!): UserResponse!
         updatePassword(input: PasswordInput!): MessageResponse!
         verifyEmail(emailVerificationToken: String!): MessageResponse!
+        resendVerificationEmail: MessageResponse!
     }
 `;
 
