@@ -1,15 +1,17 @@
 "use client";
-
 import React, { useState } from 'react';
 import AuthForm from '@/components/Auth/AuthForm';
 import Banner from '@/components/common/Banner';
-import { validateEmail, validateName, validatePassword } from '@/utils/userValidation';
+import { validateEmail, validateName, validatePassword } from '@/utils/validation';
 import { useForm } from '@/hooks/useForm';
 import { useBanner } from '@/hooks/useBanner';
 import { registerUser } from '@/api/user';
 
 const Register = () => {
-  const { formState, handleChange, resetForm } = useForm({ name: '', email: '', password: '' });
+  const { formState, handleChange, validateForm, resetForm } = useForm(
+    { name: '', email: '', password: '' },
+    (state) => [validateName(state.name), validateEmail(state.email), validatePassword(state.password)]
+  );
   const [isLoading, setIsLoading] = useState(false);
   const { banner, showBanner, closeBanner } = useBanner();
 
@@ -17,45 +19,26 @@ const Register = () => {
     e.preventDefault();
     setIsLoading(true);
 
-    const { name, email, password } = formState;
-
-    const nameValidation = await validateName(name);
-    const emailValidation = await validateEmail(email);
-    const passwordValidation = await validatePassword(password);
-
-    if (!nameValidation.isValid) {
-      showBanner('error', nameValidation.message || 'Name is required.');
-      setIsLoading(false);
-      return;
-    }
-    if (!emailValidation.isValid) {
-      showBanner('error', emailValidation.message || 'Email is required.');
-      setIsLoading(false);
-      return;
-    }
-    if (!passwordValidation.isValid) {
-      showBanner('error', passwordValidation.message || 'Password is required.');
-      setIsLoading(false);
-      return;
+    const validationError = await validateForm();
+    if(validationError) {
+       showBanner('error', validationError);
+       setIsLoading(false);
     }
 
-    const response = await registerUser({ email, password, name });
+    const response = await registerUser(formState);
     if (!response.success) {
       showBanner('error', response.message || 'An error occurred');
       setIsLoading(false);
       return;
     }
+
     showBanner('success', 'Registration successful! Please check your email to verify your account');
     setIsLoading(false);
     resetForm();
-    
-    setTimeout(() => {
-      redirectToProfile();
-    }, 1000);
-  };
 
-  const redirectToProfile = () => {
-    window.location.href = '/user/profile';
+    setTimeout(() => {
+      window.location.href = '/user/profile';
+    }, 1000);
   };
 
   return (

@@ -3,12 +3,15 @@
 import React, { useState } from 'react';
 import AuthForm from '@/components/Auth/AuthForm';
 import Banner from '@/components/common/Banner';
-import { validateEmail } from '@/utils/userValidation';
+import { validateEmail } from '@/utils/validation';
 import { useForm } from '@/hooks/useForm';
 import { useBanner } from '@/hooks/useBanner';
 
 const ForgotPassword = () => {
-  const { formState, handleChange, resetForm } = useForm({ email: '' });
+  const { formState, handleChange, validateForm, resetForm } = useForm(
+    { email: '' },
+    (state) => [validateEmail(state.email)]
+  );
   const [isLoading, setIsLoading] = useState(false);
   const { banner, showBanner, closeBanner } = useBanner();
   
@@ -16,13 +19,10 @@ const ForgotPassword = () => {
     e.preventDefault();
     setIsLoading(true);
 
-    const { email } = formState;
-    const emailValidation = await validateEmail(email);
-    
-    if (!emailValidation.isValid) {
-      showBanner('error', emailValidation.message || 'Invalid email');
-      setIsLoading(false);
-      return;
+    const validationError = await validateForm();
+    if(validationError) {
+       showBanner('error', validationError);
+       setIsLoading(false);
     }
 
     await new Promise((resolve) => setTimeout(resolve, 1000));

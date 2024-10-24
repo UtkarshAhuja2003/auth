@@ -3,13 +3,16 @@
 import React, { useState } from 'react';
 import AuthForm from '@/components/Auth/AuthForm';
 import Banner from '@/components/common/Banner';
-import { validateEmail, validatePassword } from '@/utils/userValidation';
+import { validateEmail, validatePassword } from '@/utils/validation';
 import { useForm } from '@/hooks/useForm';
 import { useBanner } from '@/hooks/useBanner';
 import { loginUser } from '@/api/user';
 
 const Login = () => {
-  const { formState, handleChange, resetForm } = useForm({ email: '', password: '' });
+  const { formState, handleChange, validateForm, resetForm } = useForm(
+    { email: '', password: '' },
+    (state) => [validateEmail(state.email), validatePassword(state.password)]
+  );
   const [isLoading, setIsLoading] = useState(false);
   const { banner, showBanner, closeBanner } = useBanner();
 
@@ -17,23 +20,13 @@ const Login = () => {
     e.preventDefault();
     setIsLoading(true);
 
-    const { email, password } = formState;
-
-    const emailValidation = await validateEmail(email);
-    if (!emailValidation.isValid) {
-      showBanner('error', emailValidation.message || 'An error occurred');
-      setIsLoading(false);
-      return;
+    const validationError = await validateForm();
+    if(validationError) {
+       showBanner('error', validationError);
+       setIsLoading(false);
     }
 
-    const passwordValidation = await validatePassword(password);
-    if (!passwordValidation.isValid) {
-      showBanner('error', passwordValidation.message || 'An error occurred');
-      setIsLoading(false);
-      return;
-    }
-
-    const response = await loginUser({ email, password });
+    const response = await loginUser(formState);
     if (!response.success) {
       showBanner('error', response.message || 'An error occurred');
       setIsLoading(false);
@@ -44,12 +37,8 @@ const Login = () => {
     resetForm();
 
     setTimeout(() => {
-      redirectToProfile();
+      window.location.href = '/user/profile';
     }, 1000);
-  };
-
-  const redirectToProfile = () => {
-    window.location.href = '/user/profile';
   };
 
   return (

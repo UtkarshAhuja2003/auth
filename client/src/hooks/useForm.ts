@@ -1,7 +1,9 @@
-import { User } from '@/interfaces/user';
 import { useState } from 'react';
 
-export const useForm = (initialState: User) => {
+export const useForm = <T extends Object>(
+  initialState: T,
+  validate: (state: T) => Promise<{ isValid: boolean, message: string }>[]
+) => {
   const [formState, setFormState] = useState(initialState);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -11,7 +13,17 @@ export const useForm = (initialState: User) => {
     });
   };
 
+  const validateForm = async () => {
+    const validations = await Promise.all(validate(formState));
+    let validationError: string | undefined;
+    validations.forEach(v => {
+      if (!v.isValid) return validationError = v.message || "Invalid values";
+    });
+
+    return validationError;
+  };
+
   const resetForm = () => setFormState(initialState);
 
-  return { formState, handleChange, resetForm };
+  return { formState, handleChange, validateForm, resetForm };
 };

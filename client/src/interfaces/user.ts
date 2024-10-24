@@ -1,3 +1,5 @@
+import { InputFieldProps } from "./common";
+
 export type AuthFormProps = {
   title: string;
   buttonLabel: string;
@@ -5,13 +7,7 @@ export type AuthFormProps = {
   forgotPasswordAction?: { text: string; link: string };
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
   isLoading: boolean;
-  fields: { 
-    name: string; 
-    placeholder: string; 
-    type: string; 
-    value?: string; 
-    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void 
-  }[];
+  fields: InputFieldProps[];
 };
 
 export type User = {
