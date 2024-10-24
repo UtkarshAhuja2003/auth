@@ -41,9 +41,7 @@ const registerUser = async (_, args, context) => {
             subject: "Email Verification",
             mailgenContent: emailVerificationMailgenContent(
                 user.name,
-                `${context.req.protocol}://${context.req.get(
-                    "host"
-                )}/user/verify-email/${emailVerificationToken}`
+                `${process.env.CLIENT_URL}/user/verify-email?token=${emailVerificationToken}`
             )
         });
 
@@ -139,9 +137,7 @@ const resendVerificationEmail = async(_, __, context) => {
             subject: "Email Verification",
             mailgenContent: emailVerificationMailgenContent(
                 user.name,
-                `${context.req.protocol}://${context.req.get(
-                    "host"
-                )}/user/verify-email/${emailVerificationToken}`
+                `${process.env.CLIENT_URL}/user/verify-email?token=${emailVerificationToken}`
             )
         });
 
@@ -208,9 +204,7 @@ const forgotPasswordRequest = async (_, args, context) => {
             subject: "Password reset request",
             mailgenContent: forgotPasswordMailgenContent(
                 user.name,
-                `${context.req.protocol}://${context.req.get(
-                    "host"
-                )}/user/forgot-password/${forgotPasswordToken}`
+                `${process.env.CLIENT_URL}/user/forgot-password/reset?token=${forgotPasswordToken}`
             )
         });
 
@@ -228,7 +222,8 @@ const resetForgottenPassword = async (_, args) => {
 
         const decodedToken = jwt.verify(forgotPasswordToken, process.env.FORGOT_PASSWORD_TOKEN_SECRET);
         const user = await User.findById(decodedToken._id);
-        if (!user) {
+        
+        if (!user || user.forgotPasswordToken !== forgotPasswordToken) {
             return new GraphQLResponse(null, false, "Token is invalid or expired", ["User with this token not found"], new Error().stack);
         }
 
