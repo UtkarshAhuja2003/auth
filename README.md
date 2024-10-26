@@ -1,9 +1,8 @@
-
 # Auth System
 
 A scalable authentication system using Next.js, Nodejs, TypeScript, GraphQL, JWT, MongoDB, and Docker, complete with email verification, password reset, and CI/CD integration.
 
-
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/new/?autostart=false#https://github.com/UtkarshAhuja2003/auth)
 
 ![example workflow](https://github.com/UtkarshAhuja2003/auth/actions/workflows/docker-image.yml/badge.svg)
 [![License](https://img.shields.io/github/license/UtkarshAhuja2003/auth)](LICENSE)
@@ -15,12 +14,9 @@ A scalable authentication system using Next.js, Nodejs, TypeScript, GraphQL, JWT
 - [Installation](#installation)
 - [Usage](#usage)
 - [Project Structure](#project-structure)
-- [Error Handling](#error-handling)
 - [Tech Stack](#tech-stack)
 - [Key Dependencies](#key-dependencies)
-- [Architecture](#architecture)
 - [Screenshots](#screenshots)
-- [API Reference](#api-reference)
 - [Contributing](#contributing)
 - [License](#license)
 ## Features
@@ -42,10 +38,10 @@ A scalable authentication system using Next.js, Nodejs, TypeScript, GraphQL, JWT
 ## Installation
 
 1. Clone the repository:  
-```bash
-git clone https://github.com/UtkarshAhuja2003/auth.git
-cd auth
-```
+   ```bash
+   git clone https://github.com/UtkarshAhuja2003/auth.git
+   cd auth
+   ```
 
 2. Create environment files:  
    ```bash
@@ -54,13 +50,13 @@ cd auth
     ```
 
 3. Start the services using Docker Compose:  
-```bash
-docker-compose up --build -d
-```
+   ```bash
+   docker-compose up --build -d
+   ```
 
 ## Usage
 
-After starting, navigate to http://localhost to access the client. APIs are accessible at http://localhost/user for the users microservice.
+After starting, navigate to http://localhost/user/register to access the client. APIs are accessible at http://localhost/users for the users microservice.
 
 For local development, refer to the individual READMEs in each service directory:
 
@@ -70,17 +66,18 @@ For local development, refer to the individual READMEs in each service directory
 Each README provides step-by-step instructions for environment configuration, running the service locally, and troubleshooting common issues.
 
 ## Project Structure
-```bash
-auth/
- ├── .github/workflows     # GitHub Actions CI/CD
- ├── client                # Next.js client with authentication flows
- ├── proxy                 # Nginx reverse proxy configurations
- ├── users                 # Backend microservice for user management
- ├── docker-compose.yml
- ├── gitpod.yml
- ├── LICENSE
- └── README.md
-```
+
+   ```bash
+   auth/
+    ├── .github/workflows     # GitHub Actions CI/CD
+    ├── client                # Next.js client with authentication flows
+    ├── proxy                 # Nginx reverse proxy configurations
+    ├── users                 # Backend microservice for user management
+    ├── docker-compose.yml
+    ├── gitpod.yml
+    ├── LICENSE
+    └── README.md
+   ```
 ## Tech Stack
 
 - **Frontend**: Next.js, TypeScript, TailwindCSS

@@ -11,7 +11,7 @@ connectDB();
 const startServer = async () => {
   const server = await createApolloServer();
   app.use("/user",
-    cors({ origin: "http://localhost:3000", credentials: true }),
+    cors({ origin: ["http://localhost:3000", "http://localhost"], credentials: true }),
     expressMiddleware(server, {
       context: ({ req, res }) => ({ req, res })
     })
