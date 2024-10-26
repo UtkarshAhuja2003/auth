@@ -17,6 +17,7 @@ A scalable authentication system using Next.js, Nodejs, TypeScript, GraphQL, JWT
 - [Tech Stack](#tech-stack)
 - [Key Dependencies](#key-dependencies)
 - [Screenshots](#screenshots)
+- [Demo](#demo)
 - [Contributing](#contributing)
 - [License](#license)
 ## Features
@@ -99,7 +100,8 @@ Each README provides step-by-step instructions for environment configuration, ru
 ![image](https://github.com/user-attachments/assets/04134933-c472-4a7f-a15b-7c790e164f6b)
 ![image](https://github.com/user-attachments/assets/cfcc9a04-de51-4bd2-ac57-460adfc25571)
 
-
+## Demo
+[![Watch the demo](https://cdn.loom.com/sessions/thumbnails/1b9861585d8c4049b0b028c6ba903c83-eb0be641806570ab-full-play.gif)](https://www.loom.com/share/1b9861585d8c4049b0b028c6ba903c83?sid=aec90532-3477-4847-8839-cf1e8243e498)
 
 ## Contributing
 
