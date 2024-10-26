@@ -7,8 +7,10 @@ import { validateEmail, validatePassword } from '@/utils/validation';
 import { useForm } from '@/hooks/useForm';
 import { useBanner } from '@/hooks/useBanner';
 import { loginUser } from '@/api/user';
+import { useRouter } from "next/navigation";
 
 const Login = () => {
+  const router = useRouter();
   const { formState, handleChange, validateForm, resetForm } = useForm(
     { email: '', password: '' },
     (state) => [validateEmail(state.email), validatePassword(state.password)]
@@ -37,7 +39,7 @@ const Login = () => {
     resetForm();
 
     setTimeout(() => {
-      window.location.href = '/user/profile';
+      router.replace('/user/profile');
     }, 1000);
   };
 

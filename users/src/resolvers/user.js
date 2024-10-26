@@ -23,13 +23,12 @@ const registerUser = async (_, args, context) => {
         await user.save();
 
         const { accessToken, refreshToken } = await generateAccessAndRefreshToken(user._id);
-        const createdUser = await User.findById(user._id).select("-password -refreshToken");
+        const createdUser = await User.findById(user._id).select("-password -refreshToken -verificationToken -forgotPasswordToken");
         if (!createdUser) {
             return new GraphQLResponse(null, false, "User registration unsuccessful", ["Failed to register user"], new Error().stack);
         }
 
         const cookieOptions = {
-            httpOnly: true,
             secure: process.env.NODE_ENV === "production",
             sameSite: "Strict",
         };
@@ -69,14 +68,13 @@ const loginUser = async (_, args, context) => {
         }
 
         const { accessToken, refreshToken } = await generateAccessAndRefreshToken(user._id);
-        const loggedInUser = await User.findById(user._id).select("-password -refreshToken");
+        const loggedInUser = await User.findById(user._id).select("-password -refreshToken -verificationToken -forgotPasswordToken");
 
         if (!loggedInUser) {
             return new GraphQLResponse(null, false, "User login unsuccessful", ["Failed to log in user"], new Error().stack);
         }
 
         const cookieOptions = {
-            httpOnly: true,
             secure: process.env.NODE_ENV === "production",
             sameSite: "Strict",
         };
@@ -96,12 +94,8 @@ const verifyEmail = async (_, args, context) => {
         if(!jwtResponse.success) return jwtResponse;
 
         const user = jwtResponse.data;
-        if (!user) {
+        if (!user || emailVerificationToken !== user.verificationToken) {
             return new GraphQLResponse(null, false, "User not found", ["User not authenticated"], new Error().stack);
-        }
-
-        if (emailVerificationToken !== user.verificationToken) {
-            return new GraphQLResponse(null, false, "Email verification token is expired or used", ["Invalid or expired email verification token"], new Error().stack);
         }
 
         user.emailVerified = true;
@@ -157,8 +151,8 @@ const getCurrentUser = async (_, __, context) => {
             return new GraphQLResponse(null, false, "User not found", ["User not authenticated"], new Error().stack);
         }
 
-        const { _id, name, email } = user;
-        return new GraphQLResponse({ _id, name, email }, true, "User retrieved successfully");
+        const { _id, name, email, emailVerified } = user;
+        return new GraphQLResponse({ _id, name, email, emailVerified }, true, "User retrieved successfully");
     } catch (error) {
         return new GraphQLResponse(null, false, error.message, [error.message], error.stack);
     }
@@ -281,7 +275,6 @@ const refreshAccessToken = async (_, args, context) => {
       try {
           const { accessToken, refreshToken } = await generateAccessAndRefreshToken(user._id);
           const cookieOptions = {
-              httpOnly: true,
               secure: process.env.NODE_ENV === "production",
               sameSite: "Strict",
           };

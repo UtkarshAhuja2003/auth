@@ -1,3 +1,4 @@
+import { User } from "./user";
 
 export type InputFieldProps = {
     name: string;
@@ -17,3 +18,16 @@ export type BannerProps = {
   onClose: () => void;
   type: 'success' | 'error';
 };
+
+export type EditableUser = {
+  [k in keyof User]: { value: User[k], cacheValue: User[k], isEditing: boolean };
+}
+
+export type EditableFieldProps = {
+  field: keyof User;
+  label?: string;
+  inputProps: InputFieldProps;
+  userData: EditableUser;
+  handleEditToggle: (field: keyof User, action: "edit" | "save" | "cancel", newValue?: string | boolean) => void;
+};
+

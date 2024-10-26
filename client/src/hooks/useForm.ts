@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-export const useForm = <T extends Object>(
+export const useForm = <T extends object>(
   initialState: T,
   validate: (state: T) => Promise<{ isValid: boolean, message: string }>[]
 ) => {

@@ -6,8 +6,10 @@ import { validateEmail, validateName, validatePassword } from '@/utils/validatio
 import { useForm } from '@/hooks/useForm';
 import { useBanner } from '@/hooks/useBanner';
 import { registerUser } from '@/api/user';
+import { useRouter } from "next/navigation";
 
 const Register = () => {
+  const router = useRouter();
   const { formState, handleChange, validateForm, resetForm } = useForm(
     { name: '', email: '', password: '' },
     (state) => [validateName(state.name), validateEmail(state.email), validatePassword(state.password)]
@@ -37,7 +39,7 @@ const Register = () => {
     resetForm();
 
     setTimeout(() => {
-      window.location.href = '/user/profile';
+      router.replace('/user/profile');
     }, 1000);
   };
 

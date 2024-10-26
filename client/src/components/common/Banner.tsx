@@ -1,7 +1,8 @@
 "use client";
 
-import React from 'react';
+import React, {useState} from 'react';
 import { BannerProps } from '@/interfaces/common';
+import { resendVerificationEmail } from '@/api/user';
 
 const Banner: React.FC<BannerProps> = ({ message, onClose, type }) => {
   const bgColor = type === 'success' ? 'bg-green-100' : 'bg-red-100';
@@ -23,6 +24,39 @@ const Banner: React.FC<BannerProps> = ({ message, onClose, type }) => {
     </div>
   );
 };
+
+export const EmailVerificationBanner = ({ isEmailVerified }: { isEmailVerified: boolean }) => {
+  const [loading, setLoading] = useState(false);
+
+  const resendEmailVerification = async () => {
+    setLoading(true);
+    const response = await resendVerificationEmail();
+    alert(response.message);
+    setLoading(false);
+  };
+
+  return (
+    <>
+      {!isEmailVerified && (
+        <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 flex justify-between items-center">
+          <span>
+            Your email is not verified. Please verify your email to access all
+            features.
+          </span>
+          <button
+            onClick={()=> {resendEmailVerification()}}
+            className="text-blue-500 hover:underline"
+            disabled={loading}
+          >
+            {loading ? 'Sending...' : 'Resend Verification Email'}
+          </button>
+        </div>
+      )}
+    </>
+  );
+};
+
+
 
 export default Banner;
 

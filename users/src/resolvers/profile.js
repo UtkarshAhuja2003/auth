@@ -1,34 +1,56 @@
 const User = require("../models/user");
 const verifyJWT = require("../middlewares/auth");
 const { GraphQLResponse } = require("../utils/GraphQLResponse");
-const { validateName, validatePassword } = require("../validators/userValidator");
+const { validateName, validatePassword, validateEmail } = require("../validators/userValidator");
 
 const updateProfile = async (_, args, context) => {
-    const { name } = args.input;
+    const { name, email } = args.input;
     try {
-        const nameValidation = await validateName(name);
-        if (!nameValidation.success) return nameValidation;
-
         const jwtResponse = await verifyJWT(context);
-        if(!jwtResponse.success) return jwtResponse;
+        if (!jwtResponse.success) return jwtResponse;
 
         const user = jwtResponse.data;
         if (!user) {
             return new GraphQLResponse(null, false, "User not found", ["User not authenticated"], new Error().stack);
         }
 
-        const updatedUser = await User.findByIdAndUpdate(user._id, {
-            name
-        }, { new: true }).select("-password -refreshToken");
+        if(!name && !email) {
+            return new GraphQLResponse(null, false, "Atleast one field required", ["No fields passed"], new Error().stack);
+        }
+
+        if (name) {
+            const nameValidation = await validateName(name);
+            if (!nameValidation.success) return nameValidation;
+        }
+        
+        if (email) {
+            const emailValidation = await validateEmail(email);
+            if (!emailValidation.success) return emailValidation;
+            const emailExists = await User.findOne({ email });
+            if (emailExists) {
+                return new GraphQLResponse(null, false, "Email is already in use", ["Email is already taken"], new Error().stack);
+            }
+        }
+
+        const updatedUser = await User.findByIdAndUpdate(
+            user._id,
+            {
+                ...(name && { name }),
+                ...(email && { email, emailVerified: false })
+            },
+            { new: true }
+        ).select("-password -refreshToken");
+
         if (!updatedUser) {
             return new GraphQLResponse(null, false, "User not found", ["User not found"], new Error().stack);
         }
 
         return new GraphQLResponse(updatedUser, true, "User updated successfully");
-    } catch(error) {
+    } catch (error) {
         return new GraphQLResponse(null, false, error.message, error, error.stack);
     }
 };
+
 
 const updatePassword = async (_, args, context) => {
     const { currentPassword, newPassword } = args.input;

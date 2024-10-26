@@ -10,6 +10,7 @@ const typeDefs = `
         _id: ID
         email: String
         name: String
+        emailVerified: Boolean
     }
 
     type UserResponse {
@@ -37,7 +38,8 @@ const typeDefs = `
     }
     
     input ProfileInput {
-        name: String
+        name: String,
+        email: String
     }
     
     input PasswordInput {
